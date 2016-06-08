@@ -22,13 +22,10 @@ namespace wp1czerwca
         public static bool CanKill(Game game, Cell target, Cell choosen)
         {
             return target.Type == Animal.Bull && choosen.Type == Animal.Tiger &&
-                   ((choosen.Column == target.Column && Math.Abs(choosen.Row - target.Row) == 2 &&
-                     game.Board[(choosen.Row + target.Row)/2, choosen.Column].Type == Animal.None) ||
-                    (choosen.Row == target.Row && Math.Abs(choosen.Column - target.Column) == 2 &&
-                     game.Board[choosen.Row, (choosen.Column + target.Column)/2].Type == Animal.None));
+                   CanPotentiallyKill(game, target, choosen);
         }
 
-        public static bool CanPottentiallyKill(Game game, Cell target, Cell choosen)
+        public static bool CanPotentiallyKill(Game game, Cell target, Cell choosen)
         {
             return (choosen.Column == target.Column && Math.Abs(choosen.Row - target.Row) == 2 &&
                      game.Board[(choosen.Row + target.Row) / 2, choosen.Column].Type == Animal.None) ||

@@ -43,7 +43,7 @@
                 <Label HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="1" Content="{Binding Path=MoveCounter, NotifyOnSourceUpdated=True}"></Label>
                 <Label HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="1">Tura:</Label>
                 <Viewbox HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="1" Grid.Column="1">
-                    <Image   Source="{Binding Path=Round, Converter={StaticResource AnimalToImageConverter}}"/>
+                    <Image   Source="{Binding Path=Round, Converter={StaticResource AnimalToImageConverter}, NotifyOnSourceUpdated=True}"/>
                 </Viewbox>
             </Grid>
         </Canvas>

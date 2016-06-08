@@ -119,7 +119,7 @@ namespace wp1czerwca
             SettingsWindow settings = new SettingsWindow(Game.Settings);
             settings.ShowDialog();
             if(Game.Settings.Mode == GameMode.Computer && Game.Round==Animal.Bull)
-                Game.MakeComputerMove();
+                Game.MakeComputerMove(Game.DifficultyLevel);
             Game.SetAnimalImages();
             SaveSettings();
         }

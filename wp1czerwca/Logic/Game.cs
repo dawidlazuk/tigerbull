@@ -210,46 +210,13 @@ namespace wp1czerwca
 
             if (Settings.Mode == GameMode.Computer && Round == Animal.Bull)
                 //mwContext.Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(MakeComputerMove));
-                MakeComputerMove();
+                MakeComputerMove(DifficultyLevel);
             mwContext.DataContext = null;
             mwContext.DataContext = this;
             Choosen = null;
         }
 
-        public void MakeComputerMove()
-        {
-            bool?[,] safetyBoard = AnalyseBoard();
-
-            if (TryMoveUnsafeBullintoSafe(safetyBoard) || TryMoveSafeBullIntoSafe(safetyBoard) ||
-                TryMoveUnsafeBullintoAny(safetyBoard) || TryMoveAnyBullIntoAny())
-                return;
-
-            //Cell cell;
-            //Random random = new Random();
-            //List<int> bullsInt = new List<int>();
-            //List<int> movesInt = new List<int>();
-
-            //for(int i = 0; i < Bulls.Count; ++i)
-            //    bullsInt.Add(i);
-            //while (bullsInt.Count > 0)
-            //{
-            //    for (int i = 0; i < 4; ++i)
-            //        movesInt.Add(i);
-            //    int ind = random.Next(Bulls.Count - 1);
-            //    Choosen = Bulls[ind];
-            //    bullsInt.Remove(ind);
-            //    while (movesInt.Count > 0)
-            //    {
-            //        ind = movesInt[random.Next(movesInt.Count - 1)];
-            //        movesInt.Remove(ind);
-            //        if (Rules.MoveIsPossible(this, Enum.GetValues(typeof(Moves)).Cast<Moves>().ElementAt(ind), out cell,Choosen))
-            //        {
-            //            MoveChoosenCell(cell);
-            //            return;
-            //        }
-            //    }
-            //}
-        }
+       
 
         private void ErasePossibleMoves()
         {
@@ -286,7 +253,7 @@ namespace wp1czerwca
         {
             Settings.Mode = mode;
             if(Round == Animal.Bull && Settings.Mode == GameMode.Computer)
-                MakeComputerMove();
+                MakeComputerMove(DifficultyLevel);
         }
 
         public void SetAnimalImages()
@@ -315,6 +282,8 @@ namespace wp1czerwca
                     Stretch = Stretch.Fill
                 };
             }
+            mwContext.DataContext = null;
+            mwContext.DataContext = this;
         }
     }
 }
