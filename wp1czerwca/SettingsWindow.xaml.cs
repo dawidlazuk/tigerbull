@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -11,22 +13,26 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using wp1czerwca.Annotations;
 
 namespace wp1czerwca
 {
     [Serializable]
     public class Settings
     {
+        private Uri tiger;
+        private Uri bull;
         public GameMode Mode { get; set; }
+
         public Uri Tiger { get; set; }
+
         public Uri Bull { get; set; }
 
-        public Settings() { }
-        public Settings(GameMode mode,Uri tiger, Uri bull)
+        public Settings(GameMode mode = GameMode.Computer,int tiger = 0, int bull = 0)
         {
             Mode = mode;
-            Tiger = tiger;
-            Bull = bull;
+            this.Tiger = MainWindow.Tigers[tiger];
+            this.Bull = MainWindow.Bulls[bull];
         }
     }
     /// <summary>
@@ -36,18 +42,22 @@ namespace wp1czerwca
     {
         
         public static Settings StaticSettings { get; set; }
-
+        public static int tigerInd;
+        public static int bullInd;
         public Settings Settings
         {
             get { return StaticSettings; }
             set { StaticSettings = value; }
         }
-        public SettingsWindow(GameMode mode)
+        public SettingsWindow(Settings gameSettings)
         {
             InitializeComponent();
             if (StaticSettings == null)
-                StaticSettings = new Settings(mode,MainWindow.Tigers[0],MainWindow.Bulls[0]);
-
+            {
+                tigerInd = MainWindow.Tigers.FindIndex(u => gameSettings.Tiger == u);
+                bullInd = MainWindow.Bulls.FindIndex(u => gameSettings.Bull == u);
+                StaticSettings = gameSettings;
+            }
             this.DataContext = this;
             SettingsGrid.DataContext = Settings;
         }
@@ -57,14 +67,43 @@ namespace wp1czerwca
             this.Close();
         }
 
-        private void Previous_OnClick(object sender, RoutedEventArgs e)
+        private void PreviousTiger_OnClick(object sender, RoutedEventArgs e)
         {
-            throw new NotImplementedException();
+            tigerInd = (tigerInd - 1)%MainWindow.Tigers.Count;
+            if (tigerInd < 0)
+                tigerInd += MainWindow.Tigers.Count;
+            Settings.Tiger = MainWindow.Tigers[tigerInd];
+            ResetSettingsContext();
         }
 
-        private void Next_OnClick(object sender, RoutedEventArgs e)
+        private void NextTiger_OnClick(object sender, RoutedEventArgs e)
         {
-            throw new NotImplementedException();
+            tigerInd = (tigerInd + 1) % MainWindow.Tigers.Count;
+            Settings.Tiger = MainWindow.Tigers[tigerInd];
+            ResetSettingsContext();
+        }
+
+
+        private void PreviousBull_OnClick(object sender, RoutedEventArgs e)
+        {
+            bullInd = (bullInd - 1) % MainWindow.Bulls.Count;
+            if (bullInd < 0)
+                bullInd += MainWindow.Bulls.Count;
+            Settings.Bull = MainWindow.Bulls[bullInd];
+            ResetSettingsContext();
+        }
+
+        private void NextBull_OnClick(object sender, RoutedEventArgs e)
+        {
+            bullInd = (bullInd + 1) % MainWindow.Bulls.Count;
+            Settings.Bull = MainWindow.Bulls[bullInd];
+            ResetSettingsContext();
+        }
+
+        private void ResetSettingsContext()
+        {
+            SettingsGrid.DataContext = null;
+            SettingsGrid.DataContext = Settings;
         }
     }
 }

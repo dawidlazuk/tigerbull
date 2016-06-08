@@ -19,38 +19,46 @@ namespace wp1czerwca
                    (Math.Abs(game.Choosen.Row - target.Row) + Math.Abs(game.Choosen.Column - target.Column) == 1);
         }
 
-        public static bool CanKill(Game game, Cell target)
+        public static bool CanKill(Game game, Cell target, Cell choosen)
         {
-            return target.Type == Animal.Bull && game.Choosen.Type == Animal.Tiger &&
-                   ((game.Choosen.Column == target.Column && Math.Abs(game.Choosen.Row - target.Row) == 2 &&
-                     game.Board[(game.Choosen.Row + target.Row)/2, game.Choosen.Column].Type == Animal.None) ||
-                    (game.Choosen.Row == target.Row && Math.Abs(game.Choosen.Column - target.Column) == 2 &&
-                     game.Board[game.Choosen.Row, (game.Choosen.Column + target.Column)/2].Type == Animal.None));
+            return target.Type == Animal.Bull && choosen.Type == Animal.Tiger &&
+                   ((choosen.Column == target.Column && Math.Abs(choosen.Row - target.Row) == 2 &&
+                     game.Board[(choosen.Row + target.Row)/2, choosen.Column].Type == Animal.None) ||
+                    (choosen.Row == target.Row && Math.Abs(choosen.Column - target.Column) == 2 &&
+                     game.Board[choosen.Row, (choosen.Column + target.Column)/2].Type == Animal.None));
         }
 
-        public static bool MoveIsPossible(Game game, Moves direction, out Cell cell)
+        public static bool CanPottentiallyKill(Game game, Cell target, Cell choosen)
+        {
+            return (choosen.Column == target.Column && Math.Abs(choosen.Row - target.Row) == 2 &&
+                     game.Board[(choosen.Row + target.Row) / 2, choosen.Column].Type == Animal.None) ||
+                    (choosen.Row == target.Row && Math.Abs(choosen.Column - target.Column) == 2 &&
+                     game.Board[choosen.Row, (choosen.Column + target.Column) / 2].Type == Animal.None);
+        }
+
+        public static bool MoveIsPossible(Game game, Moves direction, out Cell cell, Cell choosen)
         {
             bool result = false;
             cell = null;
             switch (direction)
             {
                 case Moves.Up:
-                    if(result = game.Choosen.Row > 0 && game.Board[game.Choosen.Row - 1, game.Choosen.Column].Type == Animal.None)
-                        cell = game.Board[game.Choosen.Row - 1, game.Choosen.Column];
+                    if(result = choosen.Row > 0 && game.Board[choosen.Row - 1, choosen.Column].Type == Animal.None)
+                        cell = game.Board[choosen.Row - 1, choosen.Column];
                     break;
                 case Moves.Down:
-                    if(result = game.Choosen.Row < game.Board.GetLength(0) - 1 &&
-                           game.Board[game.Choosen.Row + 1, game.Choosen.Column].Type == Animal.None) 
-                        cell = game.Board[game.Choosen.Row + 1, game.Choosen.Column];
+                    if(result = choosen.Row < game.Board.GetLength(0) - 1 &&
+                           game.Board[choosen.Row + 1, choosen.Column].Type == Animal.None) 
+                        cell = game.Board[choosen.Row + 1, choosen.Column];
                     break;
                 case Moves.Left:
-                    if(result = game.Choosen.Column > 0 && game.Board[game.Choosen.Row, game.Choosen.Column - 1].Type == Animal.None) 
-                        cell = game.Board[game.Choosen.Row, game.Choosen.Column-1];
+                    if(result = choosen.Column > 0 && game.Board[choosen.Row, choosen.Column - 1].Type == Animal.None) 
+                        cell = game.Board[choosen.Row, choosen.Column-1];
                     break;
                 case Moves.Right:
-                   if(result = game.Choosen.Column < game.Board.GetLength(1) - 1 &&
-                           game.Board[game.Choosen.Row, game.Choosen.Column + 1].Type == Animal.None)
-                       cell = game.Board[game.Choosen.Row, game.Choosen.Column+1];
+                   if(result = choosen.Column < game.Board.GetLength(1) - 1 &&
+                           game.Board[choosen.Row, choosen.Column + 1].Type == Animal.None)
+                       cell = game.Board[choosen.Row, choosen.Column+1];
                     break;
             }
             return result;

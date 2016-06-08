@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Markup.Localizer;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Media.TextFormatting;
 using System.Windows.Shapes;
 using System.Windows.Threading;
@@ -24,9 +25,7 @@ namespace wp1czerwca
         Up, Down, Left, Right
     }
 
-   
-
-    public class Game
+    public partial class Game
     {
         public Cell[,] Board;
 
@@ -116,7 +115,7 @@ namespace wp1czerwca
                 if (Rules.TigersCanMove(this) == false)
                     GameEnd(Animal.Bull);
             }
-            else if (Rules.CanKill(this, cell))
+            else if (Rules.CanKill(this, cell,Choosen))
             {
                 KillCell(cell);
                 Choosen = null;
@@ -130,7 +129,7 @@ namespace wp1czerwca
             Cell cell;
             foreach (var move in Enum.GetValues(typeof(Moves)).Cast<Moves>())
             {
-                if (Rules.MoveIsPossible(this, move, out cell))
+                if (Rules.MoveIsPossible(this, move, out cell,Choosen))
                 {
                     Rectangle rect = new Rectangle
                     {
@@ -146,19 +145,19 @@ namespace wp1czerwca
                     switch (move)
                     {
                         case Moves.Down:
-                            if (cell.Row != 4 && Rules.CanKill(this, Board[cell.Row + 1, cell.Column]))
+                            if (cell.Row != 4 && Rules.CanKill(this, Board[cell.Row + 1, cell.Column],Choosen))
                                 LightPossibleKill(Board[cell.Row + 1, cell.Column]);
                             break;
                         case Moves.Up:
-                            if (cell.Row != 0 && Rules.CanKill(this, Board[cell.Row - 1, cell.Column]))
+                            if (cell.Row != 0 && Rules.CanKill(this, Board[cell.Row - 1, cell.Column],Choosen))
                                 LightPossibleKill(Board[cell.Row - 1, cell.Column]);
                             break;
                         case Moves.Left:
-                            if (cell.Column != 0 && Rules.CanKill(this, Board[cell.Row, cell.Column - 1]))
+                            if (cell.Column != 0 && Rules.CanKill(this, Board[cell.Row, cell.Column - 1],Choosen))
                                 LightPossibleKill(Board[cell.Row, cell.Column - 1]);
                             break;
                         case Moves.Right:
-                            if (cell.Column != 3 && Rules.CanKill(this, Board[cell.Row, cell.Column + 1]))
+                            if (cell.Column != 3 && Rules.CanKill(this, Board[cell.Row, cell.Column + 1],Choosen))
                                 LightPossibleKill(Board[cell.Row, cell.Column + 1]);
                             break;
                     }
@@ -197,49 +196,59 @@ namespace wp1czerwca
             Board[Choosen.Row, Choosen.Column] = Choosen;
 
             ErasePossibleMoves();
-            if(Bulls.Count == 2) return;
 
-            Round = Choosen.Type == Animal.Bull ? Animal.Tiger : Animal.Bull;
             if (Choosen.Type == Animal.Tiger)
-            {
                 MoveCounter++;
+
+            if (Bulls.Count == 2)
+            {
+                mwContext.DataContext = null;
+                mwContext.DataContext = this;
+                return;
             }
+            Round = Choosen.Type == Animal.Bull ? Animal.Tiger : Animal.Bull;
 
             if (Settings.Mode == GameMode.Computer && Round == Animal.Bull)
-                mwContext.Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(MakeComputerMove));
-
+                //mwContext.Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(MakeComputerMove));
+                MakeComputerMove();
             mwContext.DataContext = null;
             mwContext.DataContext = this;
             Choosen = null;
         }
 
-        private void MakeComputerMove()
+        public void MakeComputerMove()
         {
-            Cell cell;
-            Random random = new Random();
-            List<int> bullsInt = new List<int>();
-            List<int> movesInt = new List<int>();
-           
-            for(int i = 0; i < Bulls.Count; ++i)
-                bullsInt.Add(i);
-            while (bullsInt.Count > 0)
-            {
-                for (int i = 0; i < 4; ++i)
-                    movesInt.Add(i);
-                int ind = random.Next(Bulls.Count - 1);
-                Choosen = Bulls[ind];
-                bullsInt.Remove(ind);
-                while (movesInt.Count > 0)
-                {
-                    ind = movesInt[random.Next(movesInt.Count - 1)];
-                    movesInt.Remove(ind);
-                    if (Rules.MoveIsPossible(this, Enum.GetValues(typeof(Moves)).Cast<Moves>().ElementAt(ind), out cell))
-                    {
-                        MoveChoosenCell(cell);
-                        return;
-                    }
-                }
-            }
+            bool?[,] safetyBoard = AnalyseBoard();
+
+            if (TryMoveUnsafeBullintoSafe(safetyBoard) || TryMoveSafeBullIntoSafe(safetyBoard) ||
+                TryMoveUnsafeBullintoAny(safetyBoard) || TryMoveAnyBullIntoAny())
+                return;
+
+            //Cell cell;
+            //Random random = new Random();
+            //List<int> bullsInt = new List<int>();
+            //List<int> movesInt = new List<int>();
+
+            //for(int i = 0; i < Bulls.Count; ++i)
+            //    bullsInt.Add(i);
+            //while (bullsInt.Count > 0)
+            //{
+            //    for (int i = 0; i < 4; ++i)
+            //        movesInt.Add(i);
+            //    int ind = random.Next(Bulls.Count - 1);
+            //    Choosen = Bulls[ind];
+            //    bullsInt.Remove(ind);
+            //    while (movesInt.Count > 0)
+            //    {
+            //        ind = movesInt[random.Next(movesInt.Count - 1)];
+            //        movesInt.Remove(ind);
+            //        if (Rules.MoveIsPossible(this, Enum.GetValues(typeof(Moves)).Cast<Moves>().ElementAt(ind), out cell,Choosen))
+            //        {
+            //            MoveChoosenCell(cell);
+            //            return;
+            //        }
+            //    }
+            //}
         }
 
         private void ErasePossibleMoves()
@@ -278,6 +287,34 @@ namespace wp1czerwca
             Settings.Mode = mode;
             if(Round == Animal.Bull && Settings.Mode == GameMode.Computer)
                 MakeComputerMove();
+        }
+
+        public void SetAnimalImages()
+        {
+            BitmapImage bmp = new BitmapImage();
+            bmp.BeginInit();
+            bmp.UriSource = Settings.Bull;
+            bmp.EndInit();
+            foreach (var bull in Bulls)
+            {
+                bull.image.Child = new Image
+                {
+                    Source = bmp,
+                    Stretch = Stretch.Fill
+                };
+            }
+            bmp = new BitmapImage();
+            bmp.BeginInit();
+            bmp.UriSource = Settings.Tiger;
+            bmp.EndInit();
+            foreach (var tiger in Tigers)
+            {
+                tiger.image.Child = new Image
+                {
+                    Source = bmp,
+                    Stretch = Stretch.Fill
+                };
+            }
         }
     }
 }

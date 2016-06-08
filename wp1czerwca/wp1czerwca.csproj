@@ -57,7 +57,10 @@
     </ApplicationDefinition>
     <Compile Include="Converters\AnimalToImageConverter.cs" />
     <Compile Include="Converters\GameModeToRadioButtonConverter.cs" />
+    <Compile Include="Converters\UriToBitmapConverter.cs" />
+    <Compile Include="Logic\Computer.cs" />
     <Compile Include="Logic\Rules.cs" />
+    <Compile Include="Properties\Annotations.cs" />
     <Compile Include="SettingsWindow.xaml.cs">
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>
@@ -100,7 +103,6 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="obrazki\Thumbs.db" />
-    <None Include="obrazki\Tigers\tygrys2.eps" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -117,6 +119,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="obrazki\Bulls\byk2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="obrazki\Tigers\tygrys2.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

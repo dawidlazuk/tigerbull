@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -47,11 +48,18 @@ namespace wp1czerwca
         {
             Tigers = new List<Uri>();
             Bulls = new List<Uri>();
-            
-            Tigers.Add(new Uri(@"C:\Users\Dawid\Documents\Visual Studio 2013\Projects\wp1czerwca\wp1czerwca\obrazki\Tigers\tygrys.png"));
-            Tigers.Add(new Uri(@"C:\Users\Dawid\Documents\Visual Studio 2013\Projects\wp1czerwca\wp1czerwca\obrazki\Tigers\tygrys2.eps"));
-            Bulls.Add(new Uri(@"C:\Users\Dawid\Documents\Visual Studio 2013\Projects\wp1czerwca\wp1czerwca\obrazki\Bulls\byk.png"));
-            Bulls.Add(new Uri(@"C:\Users\Dawid\Documents\Visual Studio 2013\Projects\wp1czerwca\wp1czerwca\obrazki\Bulls\byk2.png"));
+            var requiredPath = System.IO.Path.GetDirectoryName(System.IO.Path.GetDirectoryName(
+                                System.IO.Path.GetDirectoryName(
+                                System.Reflection.Assembly.GetExecutingAssembly().GetName().CodeBase)));
+            foreach (var file in Directory.GetFiles(new Uri(requiredPath + @"\obrazki\Tigers").LocalPath))
+                Tigers.Add(new Uri(file));
+            foreach (var file in Directory.GetFiles(new Uri(requiredPath + @"\obrazki\Bulls").LocalPath))
+                Bulls.Add(new Uri(file));
+
+            // Tigers.Add(new Uri("/obrazki/Tigers/tygrys.png",UriKind.Relative));
+           // Tigers.Add(new Uri("C/obrazki/Tigers/tygrys2.png",UriKind.Relative));
+           // Bulls.Add(new Uri("/obrazki/Bulls/byk.png",UriKind.Relative));
+           // Bulls.Add(new Uri("/obrazki/Bulls/byk2.png",UriKind.Relative));
         }
 
         private void DrawGrid(object sender, EventArgs e)
@@ -108,10 +116,11 @@ namespace wp1czerwca
 
         private void Settings_OnClick(object sender, RoutedEventArgs e)
         {
-            SettingsWindow settings = new SettingsWindow(Game.Settings.Mode);
+            SettingsWindow settings = new SettingsWindow(Game.Settings);
             settings.ShowDialog();
-            if(Game.Settings.Mode!=settings.Settings.Mode)
-                Game.SetMode(settings.Settings.Mode);
+            if(Game.Settings.Mode == GameMode.Computer && Game.Round==Animal.Bull)
+                Game.MakeComputerMove();
+            Game.SetAnimalImages();
             SaveSettings();
         }
 
@@ -137,11 +146,11 @@ namespace wp1czerwca
             }
             catch (FileNotFoundException)
             {
-                result = new Settings(GameMode.Computer,Tigers[0],Bulls[0]);
+                result = new Settings();
             }
             catch (SerializationException)
             {
-                result = new Settings(GameMode.Computer, Tigers[0], Bulls[0]);
+                result = new Settings();
             }
             return result;
         }
